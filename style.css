@@ -124,6 +124,17 @@ body {
     height: 100%;
 
     column-fill: auto;
+
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    font-size-adjust: none;
+}
+
+.pageContent p, .pageContent li {
+    font-size: 14px;
+    line-height: 20px;
 }
 
 /* .column-break {
@@ -244,4 +255,23 @@ body {
 h1, h2, h3, h4, h5 {
     break-inside: avoid;
     break-after: avoid;
+}
+
+/* Other Document Defaults */
+.page table {
+  width: 100%;
+  font-size: 15px;
+  line-height: 13px;
+}
+
+.page table tbody tr:nth-child(2n+1) {
+  background-color: rgb(217,237,247);
+}
+
+.page table tbody tr td {
+  padding: 3px;
+}
+
+:where(table) {
+    border-collapse: collapse;
 }

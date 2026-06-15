@@ -88,6 +88,35 @@ fileInput.addEventListener('change', async () => {
   }
 });
 
+// --- CUSTOM CLASSES HELPER ---
+function processCustomSyntax(text) {
+    // 1. BLOCK-LEVEL MUSTACHE (Handles \r\n and \n universally)
+    // Matches: {{className[optional spaces][newline or return] content [newline or return]}}
+    let processed = text.replace(/\{\{([a-zA-Z0-9\-_]+)\s*\r?\n([\s\S]*?)\r?\n\}\}/g, (match, className, content) => {
+        const parsedContent = marked.parse(content);
+        return `<div class="${className}">${parsedContent}</div>`;
+    });
+ 
+    // 2. INLINE-LEVEL MUSTACHE (Strictly single-line only)
+    // The [^\r\n] ensures it will NEVER match if there is a line break inside the braces.
+    processed = processed.replace(/\{\{([a-zA-Z0-9\-_]+)\s+([^\r\n<>]*?)\}\}/g, (match, className, content) => {
+      const parsedContent = marked.parse(content);
+        return `<span class="${className}">${parsedContent}</span>`;
+    });
+
+    // This matches text followed by a single set of curly braces containing CSS
+    processed = processed.replace(/^([^\n]+)\s*\{([^}]+)\}/gm, (match, textContent, cssRules) => {
+    // Wrap the text in a span with the CSS injected directly as an inline style
+        const parsedText = marked.parse(textContent).replace(/^<p>|<\/p>$/g, '');
+        return `<span style="${cssRules.trim()}">${parsedText}</span>`;
+    });
+ 
+    // 3. COLUMN BREAKS
+    processed = processed.replace(/\\column/g, '<div class="column-break"></div>');
+ 
+    return processed;
+}
+
 // --- 2. THE RENDERING ENGINE ---
 function updatePreview() {
     const rawMarkdown = markdownInput.value;
@@ -95,14 +124,17 @@ function updatePreview() {
     
     const pagesTextArray = rawMarkdown.split('\\page');
     
-    pagesTextArray.forEach(pageContent => {
+    pagesTextArray.forEach((pageContent, index) => {
         const pageSection = document.createElement('section');
         pageSection.className = 'page';
+
+        pageSection.id = `page-${index + 1}`;
         
         const pageInner = document.createElement('div');
         pageInner.className = 'pageContent';
         
-        const processedHTML = pageContent.replace(/\\column/g, '<div class="column-break"></div>');
+        // const processedHTML = pageContent.replace(/\\column/g, '<div class="column-break"></div>');
+        const processedHTML = processCustomSyntax(pageContent);
         
         pageInner.innerHTML = marked.parse(processedHTML);
         pageSection.appendChild(pageInner);
