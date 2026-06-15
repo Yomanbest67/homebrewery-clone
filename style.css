@@ -1,0 +1,247 @@
+:root {
+    --main-page-color: #fff8eb; 
+}
+
+/* ==========================================================================
+   Screen App Layout (Side-by-Side)
+   ========================================================================== */
+.editorLayout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.inputPanel {
+    display: flex;
+    flex-direction: column; /* Stacks tabs on top of the textareas */
+    width: 40%;
+    height: 100%;
+    background: #2c2c35;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.tabContainer {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.tab-btn {
+    background: #1e1e24;
+    color: #aaa;
+    border: 1px solid #444;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    font-family: sans-serif;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    background: #444453;
+    color: #fff;
+    border-bottom: 1px solid transparent;
+}
+
+.editorTextarea {
+    flex-grow: 1; /* Fills remaining space below tabs */
+    width: 100%;
+    background: #1e1e24;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 0 4px 4px 4px;
+    padding: 15px;
+    font-family: monospace;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#markdownInput {
+    width: 100%;
+    height: 100%;
+    background: #1e1e24;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 15px;
+    font-family: monospace;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.previewPanel {
+    width: 60%;
+    height: 100%;
+    overflow-y: auto; /* Scroll up and down through the A4 pages */
+    background: #1e1e24;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1e1e24;
+    margin: 0;
+    padding: 20px;
+    font-family: 'Georgia', serif;
+}
+
+.documentContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px; 
+}
+
+.page {
+    background-color: var(--main-page-color);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    padding: 20mm; 
+
+    /* Exact A4 Dimensions at 72 DPI */
+    width: 210mm;
+    height: 297mm;
+
+    /* Relative positioning handles absolute-positioned elements like page numbers */
+    position: relative; 
+    overflow: hidden; 
+}
+
+.pageContent {
+    column-count: 2;
+    column-gap: 8mm;
+    height: 100%;
+
+    column-fill: auto;
+}
+
+/* .column-break {
+    display: block;
+    clear: both;
+
+    break-before: column; 
+    break-after: avoid;
+
+    -webkit-column-break-before: always;
+    
+    height: 0;
+    margin: 0;
+    padding: 0;
+} */
+
+.column-break {
+    visibility: hidden;
+    margin-top: 0;
+    break-after: always;
+    -webkit-column-break-after: always;
+    -moz-column-break-after: always;
+}
+
+.saveLoadButtons{
+    position: fixed;        /* keeps buttons visible while scrolling */
+    right: 16px;            /* distance from right edge */
+    bottom: 16px;           /* distance from bottom edge */
+    z-index: 9999;          /* appear above other content */
+    padding: 10px 14px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#saveButton, #loadButton {
+    font-size: xx-large;
+}
+
+@supports (break-after: always) {
+    .column-break {
+        margin-bottom: 100vh;
+    }
+}
+
+@media print {
+    .inputPanel {
+        display: none; /* Hides the text editor when printing */
+    }
+
+    .tabContainer {
+        display: none !important; /* Hide tabs when printing */
+    }
+
+    .previewPanel {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        padding: 0;
+    }
+
+    .editorLayout {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+
+    html, body {
+        height: auto;
+        overflow: visible;
+        margin: 0;
+        padding: 0;
+    }
+
+    .saveLoadButtons{
+        display: none !important;
+    }
+
+    /* Tell the browser to expect A4 pages with no default margins */
+    @page {
+        size: A4;
+        margin: 0;
+        background-color: var(--main-page-color);
+    }
+
+    body {
+        background-color: transparent;
+        padding: 0;
+
+        background-color: var(--main-page-color);
+    }
+
+    .documentContainer {
+        display: block; 
+        gap: 0;
+    }
+
+    .page {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        box-shadow: none; 
+        page-break-after: always; 
+        break-after: page;        
+
+        /* Ensures backgrounds actually print in browsers like Chrome/Safari */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+h1, h2, h3, h4, h5 {
+    break-inside: avoid;
+    break-after: avoid;
+}
