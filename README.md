@@ -22,6 +22,9 @@ This will prompt the user to upload a .txt file that uses the same format as abo
 
 Can be done with the browser's default printing function (or by pressing CTRL + P). By default, it will only print the pages of the document as seen in the preview window (right side of the webpage).
 
+# Live Page
+A live page of this project can be found [here](https://yomanbest67.github.io/homebrewery-html/).
+
 # Disclaimer
 This is a work in progress. Parts of the code have been written with the help of AI.
 
