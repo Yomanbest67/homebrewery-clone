@@ -211,7 +211,22 @@ window.addEventListener('keydown', (e) => {
   saveCombined('markdown_and_css.txt');
 });
 
+// Pressing tab to add 4 spaces in cssInput
+cssInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
 
+            if (!document.execCommand("insertText", false, "    ")) {
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+
+                this.value = value.substring(0, start) + "    " + value.substring(end);
+
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        }
+    });
 
 updatePreview();
 updateCustomCSS(); // Run it once at the start so default styles apply
