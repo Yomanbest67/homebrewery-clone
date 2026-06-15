@@ -22,6 +22,11 @@ This will prompt the user to upload a .txt file that uses the same format as abo
 
 Can be done with the browser's default printing function (or by pressing CTRL + P). By default, it will only print the pages of the document as seen in the preview window (right side of the webpage).
 
+# Disclaimer
+This is a work in progress. Parts of the code have been written with the help of AI.
+
+The load and save functions are not compatible with Homebrewery's import and export functions at the moment.
+
 # License
 
 This project is provided as is under the [MIT license](https://opensource.org/license/mit), which means you are free to use it as you see fit, except for claiming that you made it yourself.
