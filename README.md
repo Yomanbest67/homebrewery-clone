@@ -1,4 +1,4 @@
-# Homebrewery Clone
+# Homebrewery HTML
 
 This is a lightweight simple document creator based on [NaturalCrit's Homebrewery](https://github.com/naturalcrit/homebrewery), provided under the MIT License.
 
