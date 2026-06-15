@@ -1,0 +1,96 @@
+# Homebrewery Clone
+This is a simplified and lightweight webpage based on NaturalCrit's Homebrewery, accessible [here](https://github.com/naturalcrit/homebrewery).
+
+## Markdown-based Editor
+You can freely use markdown, a widely used, lightweight markup language, to write your documents. Type in the text box to the left and watch as the changes appear on screen in real time.
+
+## CSS Customization
+Using the buttons at the top of the text box, you may switch between markdown text and the CSS tab. Every element's appearance can be changed with custom rules.
+
+### Inline CSS
+Using curly brackets {}, you may apply direct CSS styling to the element before them.
+Like this.
+{color: blue;}
+
+### Custom-Class Blocks
+Double curly brackets immediately followed by a class name will apply that class's styling to the content inside.
+
+{{text-box
+##### You may do it like so!
+This is a custom text box. Its CSS rules can be seen in the *Custom CSS* tab.
+
+Check the text-box to see how the code looks!
+}}
+
+\column
+
+## Column Breaks
+Column breaks can be triggered manually by typing `\ column` on an empty line (without the space).
+
+## Saving and Loading Your Work
+Using the two buttons at the bottom right of the page, you can:
+* Save your work using the **Floppy Disk**
+* Load a local file using the **Eject Button**
+
+![](https://i.postimg.cc/pTZHCsD3/image.png)
+{display: flex; justify-content: center; margin-bottom: 10px;}
+
+This editor only supports .txt files that follow a specific format. Press the Save Button and have a read through the file to see how it looks.
+
+*You may also use CTRL + S to quickly save your work.*
+
+\page
+
+# Page Breaks
+Page breaks can be triggered manually by typing `\ page` on an empty line (without the space).
+
+## And If You Need To Customize a Page...
+We got you covered. Check the last lines of Custom CSS tab.
+
+You can use the #page-x id to make changes to a specific page only. 
+-----DELIMITER_MARKDOWN_CSS-----
+/* Custom Theme Styles */
+#page-1 h1 {
+    color: #58180d;
+    font-family: 'Times New Roman', serif;
+    border-bottom: 2px solid #c9ad6a;
+    margin-top: 0;
+    text-align: center;
+    column-span: all;
+}
+
+.pageContent p {
+   margin: 0;
+}
+
+.pageContent h1 {
+   color: #58180d;
+}
+
+.pageContent h2 {
+   color: #58180d;
+   font-size: large;
+   margin-bottom: 5px;
+}
+
+.pageContent h3 {
+   color: #58180d;
+   font-size: medium;
+   margin-bottom: 5px;
+}
+
+.text-box {
+  padding: 6px;
+  border: 1px solid black;
+  border-radius: 3px;
+  background-color: #38cb82;
+  margin-top: 3px;
+}
+
+.text-box h5, p {
+  margin: 0;
+}
+
+#page-2 {
+  color: navy;
+}

@@ -12,8 +12,44 @@ const tabMd = document.getElementById('tab-md');
 const tabCss = document.getElementById('tab-css');
 
 // --- 1. DEFAULT DATA ---
-const defaultText = `# Hero's Handbook\nThis is the hero's handbook page.\n\n\\column\n\n# Next Column\nSome text.`;
-const defaultCSS = `/* Custom Theme Styles */\n.pageContent h1 {\n    color: #58180d;\n    font-family: 'Times New Roman', serif;\n    border-bottom: 2px solid #c9ad6a;\n}`;
+const DEFAULT_TEXT = `# Homebrewery HTML
+This is a simplified and lightweight webpage
+based on NaturalCrit's Homebrewery, accessible
+[here](https://github.com/naturalcrit/homebrewery).
+
+\\column
+
+## Running Locally?
+Press the Load button in the lower right corner
+and select the 'example.txt' file included with this 
+to see this project in action.`;
+const DEFAULT_CSS = `/* Custom Theme Styles */
+.pageContent h1 {
+  color: #58180d;
+  font-family: 'Times New Roman', serif;
+  border-bottom: 2px solid #c9ad6a;
+  margin-top: 0;
+}`;
+
+(async () => {
+  try {
+    const res = await fetch('example.txt');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+
+    const file = new File([text], 'example.txt', { type: 'text/plain' });
+    await loadCombinedFile(file)
+
+    markdownInput.value = markdownContent;
+    cssInput.value = cssContent;
+    
+    updatePreview();
+    updateCustomCSS();
+  } catch (error) {
+    markdownInput.value = DEFAULT_TEXT;
+    cssInput.value = DEFAULT_CSS;
+  }
+})();
 
 // --- SAVE FUNCTION ---
 const DELIM = '\n-----DELIMITER_MARKDOWN_CSS-----\n';
@@ -176,9 +212,6 @@ window.addEventListener('keydown', (e) => {
 });
 
 
-// Load defaults
-markdownInput.value = defaultText;
-cssInput.value = defaultCSS;
 
 updatePreview();
 updateCustomCSS(); // Run it once at the start so default styles apply
