@@ -57,6 +57,8 @@ Other page sizes are only partially supported at the moment. You can switch to A
 
 **Changing page size on a pre-written document of another size (like this one) might cause crashes. Always start a fresh document.**
 
+{{pageNumber 1}}
+
 \page
 
 # Page Breaks
@@ -66,6 +68,13 @@ Page breaks can be triggered manually by typing `\ page` on an empty line (witho
 We got you covered. Check the last lines of Custom CSS tab.
 
 You can use the #page-x id to make changes to a specific page only. 
+
+\column
+
+## Page Numbers
+Can be added using the `pageNumber` class between curly brackets. It can be set to **auto**, a **number** of your choice, or `auto - offset` (e.g. `auto - 5`).
+
+{{pageNumber auto}}
 -----DELIMITER_MARKDOWN_CSS-----
 /* Custom Theme Styles */
 #page-1 h1 {
@@ -101,10 +110,9 @@ You can use the #page-x id to make changes to a specific page only.
 }
 
 .text-box {
-  padding: 6px;
-  border: 1px solid black;
+  padding: 10px;
   border-radius: 3px;
-  background-color: #38cb82;
+  background-color: rgb(217,237,247);
   margin-top: 3px;
 }
 
@@ -115,6 +123,41 @@ You can use the #page-x id to make changes to a specific page only.
 table {
     margin-top: 15px;
     margin-bottom: 15px;
+}
+
+.pageNumber{
+  position: absolute;
+  left: 50%;
+  bottom: 12mm;            
+  transform: translateX(-50%);
+  display: inline-grid;
+  place-items: center;
+  min-width: 48px;
+  padding: 6px 12px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  color: #1f2937;   
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 12pt;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  box-shadow: none;
+  border: none;
+}
+
+.pageNumber::before{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -1px;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(31,41,55,0), rgba(31,41,55,0.22), rgba(31,41,55,0));
+  opacity: 0.9;
+  border-radius: 1px;
 }
 
 #page-2 {

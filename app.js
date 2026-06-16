@@ -125,15 +125,36 @@ fileInput.addEventListener('change', async () => {
 });
 
 // --- CUSTOM CLASSES HELPER ---
-function processCustomSyntax(text) {
-    // 1. BLOCK-LEVEL MUSTACHE (Handles \r\n and \n universally)
+function processCustomSyntax(text, currentPageNum) {
+
+    // Matches: {{pageNumber auto}}, {{pageNumber auto - 2}}, or {{pageNumber 5}}
+    let processed = text.replace(/\{\{pageNumber\s+([a-zA-Z0-9\-\s]+)\}\}/g, (match, target) => {
+        // Clean up whitespace and lower-case the input
+        const cleanTarget = target.trim().toLowerCase();
+        let pageNum;
+
+        if (cleanTarget.startsWith('auto')) {
+            // Check if there is a subtraction modifier, e.g., "auto - 2"
+            const matchOffset = cleanTarget.match(/auto\s*-\s*(\d+)/);
+            if (matchOffset) {
+                const offset = parseInt(matchOffset[1], 10);
+                pageNum = currentPageNum - offset;
+            } else {
+                pageNum = currentPageNum;
+            }
+        } else {
+            pageNum = target.trim();
+        }
+
+        return `<div class="pageNumber">${pageNum}</div>`;
+    });
+
     // Matches: {{className[optional spaces][newline or return] content [newline or return]}}
-    let processed = text.replace(/\{\{([a-zA-Z0-9\-_]+)\s*\r?\n([\s\S]*?)\r?\n\}\}/g, (match, className, content) => {
+    processed = processed.replace(/\{\{([a-zA-Z0-9\-_]+)\s*\r?\n([\s\S]*?)\r?\n\}\}/g, (match, className, content) => {
         const parsedContent = marked.parse(content);
         return `<div class="${className}">${parsedContent}</div>`;
     });
  
-    // 2. INLINE-LEVEL MUSTACHE (Strictly single-line only)
     // The [^\r\n] ensures it will NEVER match if there is a line break inside the braces.
     processed = processed.replace(/\{\{([a-zA-Z0-9\-_]+)\s+([^\r\n<>]*?)\}\}/g, (match, className, content) => {
       const parsedContent = marked.parse(content);
@@ -142,12 +163,10 @@ function processCustomSyntax(text) {
 
     // This matches text followed by a single set of curly braces containing CSS
     processed = processed.replace(/^([^\n]+)\s*\{([^}]+)\}/gm, (match, textContent, cssRules) => {
-    // Wrap the text in a span with the CSS injected directly as an inline style
         const parsedText = marked.parse(textContent).replace(/^<p>|<\/p>$/g, '');
         return `<span style="${cssRules.trim()}">${parsedText}</span>`;
     });
  
-    // 3. COLUMN BREAKS
     processed = processed.replace(/\\column/g, '<div class="column-break"></div>');
  
     return processed;
@@ -170,7 +189,8 @@ function updatePreview() {
         pageInner.className = 'pageContent';
         
         // const processedHTML = pageContent.replace(/\\column/g, '<div class="column-break"></div>');
-        const processedHTML = processCustomSyntax(pageContent);
+        const currentPageNum = index + 1;
+        const processedHTML = processCustomSyntax(pageContent, currentPageNum);
         
         pageInner.innerHTML = marked.parse(processedHTML);
         pageSection.appendChild(pageInner);
