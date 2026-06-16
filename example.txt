@@ -39,6 +39,24 @@ This editor only supports .txt files that follow a specific format. Press the Sa
 
 *You may also use CTRL + S to quickly save your work.*
 
+{{wide
+| 1d6  | Random Thing | Other Random Thing |
+| :--: | :----------: | :----------------: |
+| 1-2  | A thing      | Other thing        |
+| 3-4  | Thing thing  | Other other        |
+| 5-6  | Some thing   | Some other         |
+}}
+
+## Other Custom Classes
+Writing ```wide``` between curly brackets will force the element to take the entirety of the horizontal space available. It works well with headings and tables -- also notice how the table above is written in pure markdown.
+
+\column
+
+## Other page formats
+Other page sizes are only partially supported at the moment. You can switch to A5 by changing the ```.page``` width and height to 148mm and 210mm respectively.
+
+**Changing page size on a pre-written document of another size (like this one) might cause crashes. Always start a fresh document.**
+
 \page
 
 # Page Breaks
@@ -61,13 +79,16 @@ You can use the #page-x id to make changes to a specific page only.
 
 .pageContent p {
    margin: 0;
+   margin-bottom: 5px;
 }
 
 .pageContent h1 {
    color: #58180d;
+   margin-top: 0;
 }
 
 .pageContent h2 {
+   margin-top: 0;
    color: #58180d;
    font-size: large;
    margin-bottom: 5px;
@@ -89,6 +110,11 @@ You can use the #page-x id to make changes to a specific page only.
 
 .text-box h5, p {
   margin: 0;
+}
+
+table {
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 #page-2 {
