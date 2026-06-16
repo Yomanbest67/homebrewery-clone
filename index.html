@@ -16,6 +16,13 @@
             <div class="tabContainer">
                 <button class="tab-btn active" id="tab-md">Markdown</button>
                 <button class="tab-btn" id="tab-css">Custom CSS</button>
+
+                <div class="pageControl">
+                    <input type="number" id="currentPage">
+                    /
+                    <input type="number" id="totalPages" disabled>
+                    <button id="goToPageBtn">Go</button>
+                </div>
             </div>
             
             <textarea id="markdownInput" class="editorTextarea"></textarea>

@@ -6,10 +6,18 @@ const userStylesTag = document.getElementById('user-styles');
 const saveButton = document.getElementById('saveButton');
 const loadButton = document.getElementById('loadButton');
 const fileInput = document.getElementById('fileInput');
+const pageNumberInput = document.getElementById('currentPage');
+const totalPagesInput = document.getElementById('totalPages');
+const goToPageBtn = document.getElementById('goToPageBtn');
 
 // Tab Buttons
 const tabMd = document.getElementById('tab-md');
 const tabCss = document.getElementById('tab-css');
+
+// Current Page
+let currentPage = 1;
+pageNumberInput.value = currentPage;
+
 
 // --- 1. DEFAULT DATA ---
 const DEFAULT_TEXT = `# Homebrewery HTML
@@ -219,6 +227,25 @@ tabCss.addEventListener('click', () => {
     markdownInput.classList.add('hidden');
 });
 
+goToPageBtn.addEventListener('click', () => {
+  scrollToPage()
+});
+
+pageNumberInput.addEventListener('keydown', (e) => {
+  if (e.key !== "Enter") return;
+
+  scrollToPage()
+});
+
+function scrollToPage() {
+  const currentPageNumberToScrollTo = pageNumberInput.value;
+  page = document.getElementById(`page-${currentPageNumberToScrollTo}`);
+
+  if (!page) return;
+
+  page.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+}
+
 // --- 5. INITIALIZATION ---
 markdownInput.addEventListener('input', updatePreview);
 cssInput.addEventListener('input', updateCustomCSS); // Watch the CSS box for typing
@@ -247,6 +274,60 @@ cssInput.addEventListener('keydown', function(e) {
             }
         }
     });
+
+// OBSERVER FOR CURRENT PAGE
+// Checks which page is currently in view and sets the global currentPageNum variable
+
+const container = document.querySelector('.previewPanel');
+
+function initObserver() {
+  const pages = container.querySelectorAll('section[id^="page-"]');
+  totalPagesInput.value = pages.length;
+  pageNumberInput.max = pages.length;
+  pageNumberInput.min = 1;
+  pages.forEach(p => {observer.observe(p)});
+}
+
+const mo = new MutationObserver((mutations) => {
+  mutations.forEach(m => {
+    m.addedNodes.forEach(node => {
+      if (node.nodeType === 1 && node.matches && node.matches('section[id^="page-"]')) {
+        observer.observe(node);
+      }
+    });
+  });
+});
+mo.observe(container, { childList: true, subtree: true });
+
+const intersectOptions = {
+  root: document.querySelector(".previewPanel"),
+  rootMargin: "0px",
+  threshold: 0.5,
+};
+
+const intersectCallback = (entries, observer) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+      const elem = entry.target;
+      
+      const match = elem.id.match(/^page-(\d+)$/);
+      if (!match) return;
+      changePageNumber(Number(match[1]));
+    }
+  });
+};
+
+const observer = new IntersectionObserver(intersectCallback, intersectOptions);
+
+// observe each page
+document.addEventListener('DOMContentLoaded', () => {
+  initObserver();
+});
+
+function changePageNumber(pageNumber) {
+  currentPage = pageNumber;
+  pageNumberInput.value = currentPage;
+}
 
 updatePreview();
 updateCustomCSS(); // Run it once at the start so default styles apply
