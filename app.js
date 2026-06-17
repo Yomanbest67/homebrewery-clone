@@ -23,6 +23,9 @@ const tabCss = document.getElementById('tab-css');
 let currentPage = 1;
 pageNumberInput.value = currentPage;
 
+let pageDataArray = []; // Stores the raw text of each page
+const visiblePages = new Set(); // Stores indices of currently visible pages
+
 
 // --- 1. DEFAULT DATA ---
 const DEFAULT_TEXT = `# Homebrewery HTML
@@ -189,28 +192,81 @@ function processCustomSyntax(text, currentPageNum) {
 // --- 2. THE RENDERING ENGINE ---
 function updatePreview() {
     const rawMarkdown = markdownInput.value;
-    documentContainer.innerHTML = '';
-    
-    const pagesTextArray = rawMarkdown.split('\\page');
-    
-    pagesTextArray.forEach((pageContent, index) => {
-        const pageSection = document.createElement('section');
-        pageSection.className = 'page';
+    pageDataArray = rawMarkdown.split('\\page');
 
+    while (documentContainer.children.length > pageDataArray.length) {
+        documentContainer.lastChild.remove();
+    }
+    
+    pageDataArray.forEach((pageContent, index) => {
+        let pageSection = documentContainer.children[index];
+        
+        if (!pageSection) {
+            // Create shell only if it doesn't exist
+            pageSection = document.createElement('section');
+            pageSection.className = 'page';
+            pageSection.dataset.index = index;
+            pageSection.innerHTML = '<div class="pageContent"></div>';
+            documentContainer.appendChild(pageSection);
+        }
+        
         pageSection.id = `page-${index + 1}`;
-        
-        const pageInner = document.createElement('div');
-        pageInner.className = 'pageContent';
-        
-        // const processedHTML = pageContent.replace(/\\column/g, '<div class="column-break"></div>');
-        const currentPageNum = index + 1;
-        const processedHTML = processCustomSyntax(pageContent, currentPageNum);
-        
-        pageInner.innerHTML = marked.parse(processedHTML);
-        pageSection.appendChild(pageInner);
-        documentContainer.appendChild(pageSection);
+
+        // Only update text if the page is visible (managed by your observer)
+        if (visiblePages.has(index)) {
+            renderPageContent(index, pageSection.firstChild);
+        }
     });
 }
+
+function renderPageContent(index, containerElement) {
+    // const pageContent = pageDataArray[index];
+    // const currentPageNum = index + 1;
+    
+    // const processedHTML = processCustomSyntax(pageContent, currentPageNum);
+    // containerElement.innerHTML = marked.parse(processedHTML);
+
+    const nextHTML = marked.parse(processCustomSyntax(pageDataArray[index], index + 1));
+    
+    // CRITICAL: Only touch the DOM if the markdown actually changed. 
+    // This removes 100% of the keystroke flashing!
+    if (containerElement.innerHTML !== nextHTML) {
+        containerElement.innerHTML = nextHTML;
+    }
+}
+
+// PRINTING EVENTS
+// 1. Prepare EVERYTHING for the printer
+window.addEventListener('beforeprint', () => {
+    // Loop through all pages and force-render them
+    pageDataArray.forEach((pageContent, index) => {
+        const pageSection = document.getElementById(`page-${index + 1}`);
+        if (pageSection) {
+            const pageInner = pageSection.querySelector('.pageContent');
+            
+            // Only render if it's currently empty
+            if (!visiblePages.has(index)) {
+                renderPageContent(index, pageInner);
+            }
+        }
+    });
+});
+
+// 2. Clean up after printing is done to restore performance
+window.addEventListener('afterprint', () => {
+    // Run through the current DOM and evict pages that aren't actually in the viewport
+    const pageSections = documentContainer.querySelectorAll('.page');
+    
+    pageSections.forEach(pageSection => {
+        const index = parseInt(pageSection.dataset.index);
+        const pageInner = pageSection.querySelector('.pageContent');
+        
+        // If the Intersection Observer says it shouldn't be visible, wipe it
+        if (!visiblePages.has(index)) {
+            pageInner.innerHTML = '';
+        }
+    });
+});
 
 // --- 3. LIVE CSS INJECTION ---
 function updateCustomCSS() {
@@ -266,34 +322,24 @@ textToPreviewBtn.addEventListener('click', () => {
   const text = markdownInput.value;
   const lines = text.split('\n');
   
-  // 1. Estimate which line is at the top of the textarea viewport
+  // 1. Find the current line index in the textarea viewport
   const lineHeight = parseFloat(getComputedStyle(markdownInput).lineHeight);
   const currentLineIndex = Math.floor(markdownInput.scrollTop / lineHeight);
 
-  // Grab the current line and strip its markdown
-  let targetText = lines[currentLineIndex] ? lines[currentLineIndex].trim() : '';
-  targetText = stripMarkdown(targetText);
-
-  // If the current line is empty, look at the next line
-  if (!targetText && lines[currentLineIndex + 1]) {
-    targetText = stripMarkdown(lines[currentLineIndex + 1]);
+  // 2. Figure out which PAGE this line belongs to
+  let pageCount = 1;
+  for (let i = 0; i < currentLineIndex; i++) {
+      if (lines[i] && lines[i].includes('\\page')) {
+          pageCount++;
+      }
   }
-  
-  if (!targetText) return;
-  // 3. Search for a DOM element in the preview that contains this text
-  const elements = documentContainer.querySelectorAll('*');
-  
-  for (let el of elements) {
-    if (el.textContent.includes(targetText)) {
-      // 4. Scroll the preview to that element smoothly
-      // previewPanel.scrollTo({
-      //   top: el.offsetTop - documentContainer.offsetTop,
-      //   behavior: 'smooth'
-      // });
 
-      el.scrollIntoView();
-      break;
-    }
+  // 3. Find the target page shell container (which always exists in the DOM)
+  const targetPageShell = document.getElementById(`page-${pageCount}`);
+  
+  if (targetPageShell) {
+      // 4. Scroll to it. The Intersection Observer will handle the actual rendering mid-scroll!
+      targetPageShell.scrollIntoView({ behavior: 'smooth' });
   }
 });
 
@@ -376,7 +422,10 @@ function initObserver() {
 
   updateMaxPageNumber();
   pageNumberInput.min = 1;
-  pages.forEach(p => {observer.observe(p)});
+  pages.forEach(p => {
+    observer.observe(p);
+    virtualRenderObserver.observe(p);
+  });
 }
 
 const mo = new MutationObserver((mutations) => {
@@ -384,6 +433,7 @@ const mo = new MutationObserver((mutations) => {
     m.addedNodes.forEach(node => {
       if (node.nodeType === 1 && node.matches && node.matches('section[id^="page-"]')) {
         observer.observe(node);
+        virtualRenderObserver.observe(node);
       }
     });
   });
@@ -409,6 +459,35 @@ const intersectCallback = (entries, observer) => {
 };
 
 const observer = new IntersectionObserver(intersectCallback, intersectOptions);
+
+// VIRTUAL RENDERING OBSERVER
+const renderOptions = {
+  root: document.querySelector(".previewPanel"),
+  rootMargin: "400px 0px", // Pre-renders pages 400px before they hit the screen
+  threshold: 0.01,
+};
+
+const renderCallback = (entries) => {
+  entries.forEach((entry) => {
+    // We grab the 0-based index we stored in dataset.index when creating the shell
+    const index = parseInt(entry.target.dataset.index);
+    const pageInner = entry.target.querySelector('.pageContent');
+    if (!pageInner) return;
+
+    if (entry.isIntersecting) {
+      if (!visiblePages.has(index)) {
+        visiblePages.add(index);
+        renderPageContent(index, pageInner); // Call your marked.parse logic here
+      }
+    } else {
+      if (visiblePages.has(index)) {
+        visiblePages.delete(index);
+        pageInner.innerHTML = ''; // Evict off-screen DOM content
+      }
+    }
+  });
+};
+const virtualRenderObserver = new IntersectionObserver(renderCallback, renderOptions);
 
 // observe each page
 document.addEventListener('DOMContentLoaded', () => {
