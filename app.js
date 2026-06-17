@@ -9,6 +9,11 @@ const fileInput = document.getElementById('fileInput');
 const pageNumberInput = document.getElementById('currentPage');
 const totalPagesInput = document.getElementById('totalPages');
 const goToPageBtn = document.getElementById('goToPageBtn');
+const previewPanel = document.querySelector('.previewPanel');
+
+const textToPreviewBtn = document.getElementById('textToPreview');
+const previewToTextBtn = document.getElementById('previewToText');
+
 
 // Tab Buttons
 const tabMd = document.getElementById('tab-md');
@@ -125,6 +130,7 @@ fileInput.addEventListener('change', async () => {
     
     updatePreview();
     updateCustomCSS();
+    updateMaxPageNumber();
 
   } catch (err) {
     console.error(err);
@@ -246,6 +252,91 @@ function scrollToPage() {
   page.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 }
 
+// ARROW BUTTONS
+
+function stripMarkdown(text) {
+  return text
+    .replace(/[#*`_~]/g, '')        
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') 
+    .trim();
+}
+
+// --- BUTTON 1: Textarea ➔ Preview ---
+textToPreviewBtn.addEventListener('click', () => {
+  const text = markdownInput.value;
+  const lines = text.split('\n');
+  
+  // 1. Estimate which line is at the top of the textarea viewport
+  const lineHeight = parseFloat(getComputedStyle(markdownInput).lineHeight);
+  const currentLineIndex = Math.floor(markdownInput.scrollTop / lineHeight);
+
+  // Grab the current line and strip its markdown
+  let targetText = lines[currentLineIndex] ? lines[currentLineIndex].trim() : '';
+  targetText = stripMarkdown(targetText);
+
+  // If the current line is empty, look at the next line
+  if (!targetText && lines[currentLineIndex + 1]) {
+    targetText = stripMarkdown(lines[currentLineIndex + 1]);
+  }
+  
+  if (!targetText) return;
+  // 3. Search for a DOM element in the preview that contains this text
+  const elements = documentContainer.querySelectorAll('*');
+  
+  for (let el of elements) {
+    if (el.textContent.includes(targetText)) {
+      // 4. Scroll the preview to that element smoothly
+      // previewPanel.scrollTo({
+      //   top: el.offsetTop - documentContainer.offsetTop,
+      //   behavior: 'smooth'
+      // });
+
+      el.scrollIntoView();
+      break;
+    }
+  }
+});
+
+// --- BUTTON 2: Preview ➔ Textarea ---
+previewToTextBtn.addEventListener('click', () => {
+  const currentPageContainer = document.getElementById(`page-${currentPage}`)
+  const elements = currentPageContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
+  let topElement = null;
+  const currentScroll = documentContainer.scrollTop;
+
+  // 1. Find which element is closest to the top of the preview viewport
+  for (let el of elements) {
+    // Check if the element's top is near or just past the top of the preview box
+    if (el.offsetTop >= currentScroll - 5) {
+      topElement = el;
+      break;
+    }
+  }
+
+  if (!topElement) return;
+  
+  // 2. Grab the text from that element
+  const targetText = topElement.textContent.trim();
+  if (!targetText) return;
+
+  // 3. Find the character index of that text in the raw textarea string
+  const textContent = markdownInput.value;
+  const charIndex = textContent.indexOf(targetText);
+
+  if (charIndex !== -1) {
+    // 4. Calculate how many lines down that character index is
+    const textBefore = textContent.substring(0, charIndex);
+    const lineNum = textBefore.split('\n').length - 1;
+    
+    // 5. Scroll the textarea to that line
+    const lineHeight = parseInt(getComputedStyle(markdownInput).lineHeight) || 20;
+    markdownInput.scrollTo({
+      top: lineNum * lineHeight,
+      behavior: 'smooth'
+    });
+  }
+});
+
 // --- 5. INITIALIZATION ---
 markdownInput.addEventListener('input', updatePreview);
 cssInput.addEventListener('input', updateCustomCSS); // Watch the CSS box for typing
@@ -282,8 +373,8 @@ const container = document.querySelector('.previewPanel');
 
 function initObserver() {
   const pages = container.querySelectorAll('section[id^="page-"]');
-  totalPagesInput.value = pages.length;
-  pageNumberInput.max = pages.length;
+
+  updateMaxPageNumber();
   pageNumberInput.min = 1;
   pages.forEach(p => {observer.observe(p)});
 }
@@ -327,6 +418,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function changePageNumber(pageNumber) {
   currentPage = pageNumber;
   pageNumberInput.value = currentPage;
+}
+
+function updateMaxPageNumber () {
+  const pages = container.querySelectorAll('section[id^="page-"]');
+  totalPagesInput.value = pages.length;
+  pageNumberInput.max = pages.length;
 }
 
 updatePreview();

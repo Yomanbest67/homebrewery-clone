@@ -94,6 +94,7 @@
     padding: 15px;
     font-family: monospace;
     font-size: 14px;
+    line-height: 20px;
     resize: none;
     outline: none;
     box-sizing: border-box;
@@ -125,6 +126,33 @@
     background: #1e1e24;
     padding: 20px;
     box-sizing: border-box;
+}
+
+.arrowButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; 
+
+    position: fixed;
+    left: 40%;
+    top: 15%;
+    z-index: 100;
+}
+
+.arrowButtons button {
+    width: fit-content;
+    background: #2c2c35;
+    color: white;
+    font-weight: bold;
+    font-size: 17px;
+
+    border: 1px solid;
+    border-radius: 50%;
+    padding: 5px;
+}
+
+.arrowButtons button:hover {
+    background-color: #50505f;
 }
 
 body {
@@ -227,6 +255,10 @@ body {
 @media print {
     .inputPanel {
         display: none; /* Hides the text editor when printing */
+    }
+
+    .arrowButtons {
+        display: none;
     }
 
     .tabContainer {
