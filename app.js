@@ -61,6 +61,7 @@ const DEFAULT_CSS = `/* Custom Theme Styles */
     
     updatePreview();
     updateCustomCSS();
+    updateMaxPageNumber();
   } catch (error) {
     markdownInput.value = DEFAULT_TEXT;
     cssInput.value = DEFAULT_CSS;
@@ -217,6 +218,10 @@ function updatePreview() {
             renderPageContent(index, pageSection.firstChild);
         }
     });
+
+    if (typeof updateMaxPageNumber === 'function') {
+        updateMaxPageNumber();
+    }
 }
 
 function renderPageContent(index, containerElement) {
