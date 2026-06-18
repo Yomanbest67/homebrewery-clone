@@ -26,6 +26,9 @@ pageNumberInput.value = currentPage;
 let pageDataArray = []; // Stores the raw text of each page
 const visiblePages = new Set(); // Stores indices of currently visible pages
 
+// SET UP EXTENDED TABLES FOR MARKED.JS
+const extendedTables = window["extended-tables"];
+marked.use(extendedTables());
 
 // --- 1. DEFAULT DATA ---
 const DEFAULT_TEXT = `# Homebrewery HTML

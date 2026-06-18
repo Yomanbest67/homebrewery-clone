@@ -74,6 +74,27 @@ You can use the #page-x id to make changes to a specific page only.
 ## Page Numbers
 Can be added using the `pageNumber` class between curly brackets. It can be set to **auto**, a **number** of your choice, or `auto - offset` (e.g. `auto - 5`).
 
+## Extended Tables
+With the help of marked-extended-tables.js, we can render more types of tables with elements that span multiple rows or columns, as seen below:
+
+| H1           | H2      |
+|--------------|---------|
+| This cell    | Cell A  |
+| spans three ^| Cell B  |
+| rows        ^| Cell C  |
+
+---
+
+| This header spans two   || Header A |
+| columns *and* two rows ^|| Header B |
+|-------------|------------|----------|
+| Cell A      | Cell B     | Cell C   |
+
+---
+
+|Column One|Column Two|Column Three|
+|--10%-----|-- 40% ---|:---50%-----|
+
 {{pageNumber auto}}
 -----DELIMITER_MARKDOWN_CSS-----
 /* Custom Theme Styles */
@@ -94,6 +115,7 @@ Can be added using the `pageNumber` class between curly brackets. It can be set 
 .pageContent h1 {
    color: #58180d;
    margin-top: 0;
+   margin-bottom: 13px;
 }
 
 .pageContent h2 {
