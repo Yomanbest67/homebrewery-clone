@@ -309,7 +309,7 @@ pageNumberInput.addEventListener('keydown', (e) => {
 
 function scrollToPage() {
   const currentPageNumberToScrollTo = pageNumberInput.value;
-  page = document.getElementById(`page-${currentPageNumberToScrollTo}`);
+  let page = document.getElementById(`page-${currentPageNumberToScrollTo}`);
 
   if (!page) return;
 
