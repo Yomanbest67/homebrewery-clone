@@ -210,6 +210,12 @@ body {
     line-height: 20px;
 }
 
+hr {
+    height: 1px;
+    background: #000000;
+    border: none;
+}
+
 /* .column-break {
     display: block;
     clear: both;

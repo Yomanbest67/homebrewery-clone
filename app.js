@@ -148,8 +148,11 @@ fileInput.addEventListener('change', async () => {
 // --- CUSTOM CLASSES HELPER ---
 function processCustomSyntax(text, currentPageNum) {
 
+    // Matches colons (:) on new lines and replaces them with breaks
+    let processed = text.replace(/^\s*:\s*$/gm, '<br>');
+
     // Matches: {{pageNumber auto}}, {{pageNumber auto - 2}}, or {{pageNumber 5}}
-    let processed = text.replace(/\{\{pageNumber\s+([a-zA-Z0-9\-\s]+)\}\}/g, (match, target) => {
+    processed = processed.replace(/\{\{pageNumber\s+([a-zA-Z0-9\-\s]+)\}\}/g, (match, target) => {
         // Clean up whitespace and lower-case the input
         const cleanTarget = target.trim().toLowerCase();
         let pageNum;
@@ -177,15 +180,20 @@ function processCustomSyntax(text, currentPageNum) {
     });
  
     // The [^\r\n] ensures it will NEVER match if there is a line break inside the braces.
-    processed = processed.replace(/\{\{([a-zA-Z0-9\-_]+)\s+([^\r\n<>]*?)\}\}/g, (match, className, content) => {
-      const parsedContent = marked.parse(content);
-        return `<span class="${className}">${parsedContent}</span>`;
-    });
+    processed = processed.replace(
+      /\{\{([a-zA-Z0-9\-_]+)\s+([\s\S]*?)\}\}/g,
+      (_, className, content) => {
+        const parsed = marked.parseInline
+          ? marked.parseInline(content.trim())
+          : marked.parse(content.trim()).replace(/^<p>/,'').replace(/<\/p>$/,'');
+        return `<div class="${className}">${parsed}</div>`;
+      }
+    );
 
     // This matches text followed by a single set of curly braces containing CSS
     processed = processed.replace(/^([^\n]+)\s*\{([^}]+)\}/gm, (match, textContent, cssRules) => {
         const parsedText = marked.parse(textContent).replace(/^<p>|<\/p>$/g, '');
-        return `<span style="${cssRules.trim()}">${parsedText}</span>`;
+        return `<div style="${cssRules.trim()}">${parsedText}</div>`;
     });
  
     processed = processed.replace(/\\column/g, '<div class="column-break"></div>');
