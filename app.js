@@ -367,26 +367,38 @@ previewToTextBtn.addEventListener('click', () => {
   let topElement = null;
   let targetText = '';
   const currentScroll = documentContainer.scrollTop;
+  let fallbackContainer = null;
 
-  // 1. Find which element is closest to the top of the preview viewport
+
   for (let el of elements) {
-    // Check if the element's top is near or just past the top of the preview box
     if (el.offsetTop >= currentScroll - 5) {
+
+      const isContainer = el.tagName === 'DIV' && el.children.length > 0;
+      if (isContainer) {
+        if (!fallbackContainer) fallbackContainer = el; 
+        continue; 
+      }
+
       topElement = el;
-
-      // 2. Grab the text from that element
-      targetText = topElement.textContent.trim();
-      if (!targetText) continue;
-
       break;
     }
   }
 
-  if (!topElement) return;
+  if (!topElement && fallbackContainer) {
+    // Grab the very first paragraph, span, or heading inside that container
+    topElement = fallbackContainer.querySelector('p, span, h1, h2, h3, h4, li');
+  }
+
+  if (topElement) {
+    targetText = topElement.textContent.trim().substring(0, 30);
+    console.log('target text: ' + targetText);
+  }
 
   // 3. Find the character index of that text in the raw textarea string
   const textContent = markdownInput.value;
   const charIndex = textContent.indexOf(targetText);
+
+  console.log('charindex: '+charIndex);
 
   if (charIndex !== -1) {
     // 4. Calculate how many lines down that character index is
@@ -399,7 +411,7 @@ previewToTextBtn.addEventListener('click', () => {
       top: lineNum * lineHeight,
       behavior: 'smooth'
     });
-  }
+  } 
 });
 
 // --- 5. INITIALIZATION ---
