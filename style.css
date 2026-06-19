@@ -296,9 +296,8 @@ body {
         display: none !important;
     }
 
-    /* Tell the browser to expect A4 pages with no default margins */
     @page {
-        size: A4;
+        /* size: A4; */
         margin: 0;
         background-color: var(--main-page-color);
     }
