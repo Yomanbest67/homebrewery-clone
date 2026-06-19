@@ -353,9 +353,11 @@ textToPreviewBtn.addEventListener('click', () => {
 
 // --- BUTTON 2: Preview ➔ Textarea ---
 previewToTextBtn.addEventListener('click', () => {
-  const currentPageContainer = document.getElementById(`page-${currentPage}`)
-  const elements = currentPageContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
+  const currentPageContainer = document.querySelector(`#page-${currentPage} .pageContent`);
+  const elements = currentPageContainer.querySelectorAll('*');
+
   let topElement = null;
+  let targetText = '';
   const currentScroll = documentContainer.scrollTop;
 
   // 1. Find which element is closest to the top of the preview viewport
@@ -363,15 +365,16 @@ previewToTextBtn.addEventListener('click', () => {
     // Check if the element's top is near or just past the top of the preview box
     if (el.offsetTop >= currentScroll - 5) {
       topElement = el;
+
+      // 2. Grab the text from that element
+      targetText = topElement.textContent.trim();
+      if (!targetText) continue;
+
       break;
     }
   }
 
   if (!topElement) return;
-  
-  // 2. Grab the text from that element
-  const targetText = topElement.textContent.trim();
-  if (!targetText) return;
 
   // 3. Find the character index of that text in the raw textarea string
   const textContent = markdownInput.value;
@@ -511,6 +514,10 @@ function updateMaxPageNumber () {
   const pages = container.querySelectorAll('section[id^="page-"]');
   totalPagesInput.value = pages.length;
   pageNumberInput.max = pages.length;
+
+  if (totalPagesInput.value < pageNumberInput) {
+    pageNumberInput.value = currentPage;
+  }
 }
 
 updatePreview();
