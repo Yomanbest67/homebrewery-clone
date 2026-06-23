@@ -4,7 +4,10 @@ This is a lightweight simple document creator based on [NaturalCrit's Homebrewer
 
 ## Usage
 
-Simply load the index.html file in your browser and start editing the content right away.
+1. Clone the repository using `git clone https://github.com/Yomanbest67/homebrewery-html.git`
+   1. Alternatively, click on the `Code` button, then `Download ZIP`
+2. Double click or drag the index.html file to a browser of your choice.
+   1. Alternatively, a live page can be found [here](https://yomanbest67.github.io/homebrewery-html/). 
 
 ### Saving Content
 
